@@ -28,5 +28,6 @@ from . import utilities
 
 from .operations import listDependencies
 from .operations import listPythonInstalledModules
+from .operations import listPythonSystem
 
 from .utilities import load_version_string

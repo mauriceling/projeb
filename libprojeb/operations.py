@@ -65,3 +65,115 @@ def listPythonInstalledModules():
     results = [x.split('==') for x in results]
     print(results)
     return results
+
+def listPythonSystem():
+    """!
+    Function to list information about the installed Python system.
+
+    @return: Dictionary of {attributes: values}.
+    """
+    try: dllhandle = sys.dllhandle
+    except AttributeError: dllhandle = "Not Defined"
+    try: androidapilevel = sys.getandroidapilevel()
+    except AttributeError: androidapilevel = "Not Defined"
+    try: dlopenflags = sys.getdlopenflags()
+    except AttributeError: dlopenflags = "Not Defined"
+    try: windowsversion_major = sys.getwindowsversion().major 
+    except AttributeError: windowsversion_major = "Not Defined"
+    try: windowsversion_minor = sys.getwindowsversion().minor 
+    except AttributeError: windowsversion_minor = "Not Defined"
+    try: windowsversion_build = sys.getwindowsversion().build 
+    except AttributeError: windowsversion_build = "Not Defined"
+    try: windowsversion_platform = sys.getwindowsversion().platform
+    except AttributeError: windowsversion_platform = "Not Defined"
+    try: 
+        service_pack = sys.getwindowsversion().service_pack
+        if service_pack == '': 
+            service_pack = 'Not Specified'
+    except AttributeError: service_pack = "Not Defined"
+    try: winver = sys.winver
+    except AttributeError: winver = "Not Defined"
+    if sys.thread_info.lock == None:
+        thread_info_lock = "Not Defined"
+    else:
+        thread_info_lock = sys.thread_info.lock
+    if sys.thread_info.version == None:
+        thread_info_version = "Not Defined"
+    else:
+        thread_info_version = sys.thread_info.version
+    results = {"base_exec_prefix": str(sys.base_exec_prefix),
+               "base_prefix": str(sys.base_prefix),
+               "byteorder": str(sys.byteorder),
+               "builtin_module_names": ','.join(sys.builtin_module_names),
+               "dllhandle": str(dllhandle),
+               "exec_prefix": str(sys.exec_prefix),
+               "executable": str(sys.executable),
+               "flag_debug": str(sys.flags.debug),
+               "flag_inspect": str(sys.flags.inspect), 
+               "flag_interactive": str(sys.flags.interactive), 
+               "flag_optimize": str(sys.flags.optimize), 
+               "flag_dont_write_bytecode": str(sys.flags.dont_write_bytecode), 
+               "flag_no_user_site": str(sys.flags.no_user_site), 
+               "flag_no_site": str(sys.flags.no_site), 
+               "flag_ignore_environment": str(sys.flags.ignore_environment), 
+               "flag_verbose": str(sys.flags.verbose), 
+               "flag_bytes_warning": str(sys.flags.bytes_warning), 
+               "flag_quiet": str(sys.flags.quiet), 
+               "flag_has_randomization": str(sys.flags.hash_randomization), 
+               "flag_isolated": str(sys.flags.isolated), 
+               "flag_dev_mode": str(sys.flags.dev_mode), 
+               "flag_utf8_mode": str(sys.flags.utf8_mode),
+               "float_info_max": str(sys.float_info.max), 
+               "float_info_max_exp": str(sys.float_info.max_exp), 
+               "float_info_max_10_exp": str(sys.float_info.max_10_exp), 
+               "float_info_min": str(sys.float_info.min), 
+               "float_info_min_exp": str(sys.float_info.min_exp), 
+               "float_info_min_10_exp": str(sys.float_info.min_10_exp), 
+               "float_info_dig": str(sys.float_info.dig), 
+               "float_info_mant_dig": str(sys.float_info.mant_dig), 
+               "float_info_epsilon": str(sys.float_info.epsilon), 
+               "float_info_radix": str(sys.float_info.radix), 
+               "float_info_rounds": str(sys.float_info.rounds),
+               "float_repr_style": str(sys.float_repr_style),
+               "allocatedblocks": str(sys.getallocatedblocks()),
+               "androidapilevel": str(androidapilevel),
+               "defaultencoding": str(sys.getdefaultencoding()),
+               "dlopenflags": str(dlopenflags),
+               "filesystemencoding": str(sys.getfilesystemencoding()),
+               "filesystemencodeerrors": str(sys.getfilesystemencodeerrors()),
+               "recursionlimit": str(sys.getrecursionlimit()),
+               "switchinterval": str(sys.getswitchinterval()),
+               "windowsversion_major": str(windowsversion_major),
+               "windowsversion_minor": str(windowsversion_minor),
+               "windowsversion_build": str(windowsversion_build), 
+               "windowsversion_platform": str(windowsversion_platform),
+               "windowsversion_service_pack": str(service_pack),
+               "hash_info_width": str(sys.hash_info.width), 
+               "hash_info_modulus": str(sys.hash_info.modulus), 
+               "hash_info_inf": str(sys.hash_info.inf), 
+               "hash_info_nan": str(sys.hash_info.nan), 
+               "hash_info_imag": str(sys.hash_info.imag), 
+               "hash_info_algorithm": str(sys.hash_info.algorithm), 
+               "hash_info_hash_bits": str(sys.hash_info.hash_bits), 
+               "hash_info_seed_bits": str(sys.hash_info.seed_bits), 
+               "hash_info_cutoff": str(sys.hash_info.cutoff),
+               "hexversion": str(sys.hexversion),
+               "implementation_name": str(sys.implementation.name),
+               "implementation_cache_tag": str(sys.implementation.cache_tag),
+               "int_info_bits_per_digit": str(sys.int_info.bits_per_digit), 
+               "int_info_sizeof_digit": str(sys.int_info.sizeof_digit),
+               "maxsize": str(sys.maxsize),
+               "maxunicode": str(sys.maxunicode),
+               "platform": str(sys.platform),
+               "prefix": str(sys.prefix),
+               "thread_info_name": str(sys.thread_info.name),
+               "thread_info_lock": str(thread_info_lock),
+               "thread_info_version": str(thread_info_version),
+               "api_version": str(sys.api_version),
+               "version_info_major": str(sys.version_info.major), 
+               "version_info_minor:": str(sys.version_info.minor), 
+               "version_info_micro": str(sys.version_info.micro), 
+               "version_info_releaselevel": str(sys.version_info.releaselevel), 
+               "version_info_serial": str(sys.version_info.serial),
+               "winver": str(sys.winver)}
+    return results

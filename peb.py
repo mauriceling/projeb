@@ -78,8 +78,28 @@ def listPythonInstalledModules():
         print("%s : %s : %s" % (str(count), x[0], x[1]))
         count = count + 1
 
+def listPythonSystem():
+    """!
+    Function to list information about the installed Python system.
+
+    Usage:
+
+        python peb.py listpysys
+
+    Results are shown in the following format:
+
+        <count> : <attribute name> : <attribute value>
+    """
+    results = libprojeb.listPythonSystem()
+    print("Count : Attribute : Value")
+    count = 1
+    for x in results:
+        print("%s : %s : %s" % (str(count), x, results[x]))
+        count = count + 1
+
 
 if __name__ == '__main__':
     exposed_functions = {'listdep': listDependencies,
-                         'listpim': listPythonInstalledModules}
+                         'listpim': listPythonInstalledModules,
+                         'listpysys': listPythonSystem}
     fire.Fire(exposed_functions)
