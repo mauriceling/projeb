@@ -58,7 +58,28 @@ def listDependencies(codefile):
         print("%s : %s : %s : %s" % (str(count), x[0], x[1], x[2]))
         count = count + 1
 
+def listPythonInstalledModules():
+    """!
+    Function to list the non-standard libraries (with version number, 
+    if any) installed in Python.
+
+    Usage:
+
+        python peb.py listpim
+
+    Results are shown in the following format:
+
+        <count> : <module name> : <version>
+    """
+    results = libprojeb.listPythonInstalledModules()
+    print("Count : Module Name : Version")
+    count = 1
+    for x in results:
+        print("%s : %s : %s" % (str(count), x[0], x[1]))
+        count = count + 1
+
 
 if __name__ == '__main__':
-    exposed_functions = {'listdep': listDependencies}
+    exposed_functions = {'listdep': listDependencies,
+                         'listpim': listPythonInstalledModules}
     fire.Fire(exposed_functions)

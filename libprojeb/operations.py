@@ -23,6 +23,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 from modulefinder import ModuleFinder
 import os
 import random
+import subprocess
 import sys
 
 from . import utilities
@@ -49,4 +50,18 @@ def listDependencies(codefile):
         if mod.__file__ != None:
             modfile = mod.__file__
         results.append((name, str(ver), modfile))
+    return results
+
+def listPythonInstalledModules():
+    """!
+    Function to list the non-standard libraries (with version number, 
+    if any) installed in Python.
+
+    @return: List of (module name, version).
+    """
+    results = subprocess.check_output(["pip", "list", "--format", "freeze"])
+    results = results.decode("utf-8")
+    results = [x for x in results.split('\r\n') if x != ""]
+    results = [x.split('==') for x in results]
+    print(results)
     return results
