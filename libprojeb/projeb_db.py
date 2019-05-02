@@ -1,7 +1,7 @@
 '''!
-Project Entries Binder (ProjEB) Library
+Project Entries Binder (ProjEB) Library - Database Access
 
-Date created: 28th April 2019
+Date created: 2nd May 2019
 
 License: GNU General Public License version 3 for academic or 
 not-for-profit use only
@@ -20,13 +20,3 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 '''
-
-from . import operations
-from . import projeb_db
-from . import setup
-from . import utilities
-
-from .operations import listDependencies
-from .operations import listPythonInstalledModules
-
-from .utilities import load_version_string
