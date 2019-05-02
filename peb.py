@@ -52,6 +52,7 @@ def listDependencies(codefile):
     """
     codefile = os.path.abspath(codefile)
     results = libprojeb.listDependencies(codefile)
+    print("Count : Dependency Name : Version : Dependency File Path")
     count = 1
     for x in results:
         print("%s : %s : %s : %s" % (str(count), x[0], x[1], x[2]))
