@@ -20,17 +20,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 '''
+import argparse
 import os
 import random
 import subprocess
 import sys
-
-try: 
-    import fire
-except ImportError:
-    subprocess.check_call([sys.executable, '-m', 'pip', 
-                           'install', 'fire'])
-    import fire
 
 import libprojeb
 
@@ -99,7 +93,18 @@ def listPythonSystem():
 
 
 if __name__ == '__main__':
-    exposed_functions = {'listdep': listDependencies,
-                         'listpim': listPythonInstalledModules,
-                         'listpysys': listPythonSystem}
-    fire.Fire(exposed_functions)
+    parser = argparse.ArgumentParser()
+    subparser = parser.add_subparsers(dest="command")
+
+    listdep = subparser.add_parser("listdep")
+    listdep.add_argument('--codefile', type=str, required=True, help="path of file to check for dependencies")
+    
+    listpim = subparser.add_parser("listpim")
+    
+    listpysys = subparser.add_parser("listpysys")
+    
+    args = parser.parse_args()
+
+    if args.command.lower() == "listdep": listDependencies(os.path.abspath(args.codefile))
+    elif args.command.lower() == "listpim": listPythonInstalledModules()
+    elif args.command.lower() == "listpysys": listPythonSystem()
