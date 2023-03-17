@@ -1,0 +1,3 @@
+[submodule "serebo"]
+	path = serebo
+	url = https://github.com/mauriceling/serebo.git
