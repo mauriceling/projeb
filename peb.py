@@ -1,110 +1,89 @@
-'''!
-Project Entries Binder (ProjEB) Command Line Interface (CLI)
-
-Date created: 28th April 2019
-
-License: GNU General Public License version 3 for academic or 
-not-for-profit use only
-
-
-ProjEB is free software: you can redistribute it and/or modify it 
-under the terms of the GNU General Public License as published by the 
-Free Software Foundation, either version 3 of the License, or (at 
-your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <http://www.gnu.org/licenses/>.
-'''
-import argparse
 import os
-import random
-import subprocess
-import sys
+import argparse
+import configparser
+import database
 
-import libprojeb
+# Read configuration file
+config = configparser.ConfigParser()
+config.read('configuration.ini')
 
+# Database file from configuration
+DATABASE_FILE = config.get('database', 'file')
 
-def listDependencies(codefile):
-    """!
-    Function to list the dependencies (with version number, if any) 
-    of the given code file.
+def initialize_database():
+    global DATABASE_FILE
+    database.DATABASE_FILE = DATABASE_FILE
+    conn = database.get_db_connection()
+    database.create_database(conn)
+    return conn
 
-    Usage:
+def create_notebook_command(conn, name, api=False):
+    message = database.create_notebook(conn, name)
+    if api:
+        return message
+    print(message)
 
-        python peb.py listdep --codefile=<path to Python code file>
+def create_entry_command(conn, title, content, notebook=None, api=False):
+    notebooks = [notebook] if notebook else []
+    messages = database.create_entry(conn, title, content, notebooks)
+    if api:
+        return messages
+    for message in messages:
+        print(message)
 
-    Results are shown in the following format:
+def list_entries_command(conn, api=False):
+    entries = database.list_entries(conn)
+    if api:
+        return entries
+    for entry in entries:
+        print(f"{entry[0]}: {entry[1]} (Created on {entry[2]}) [Notebooks: {entry[3]}]")
 
-        <count> : <dependency name> : <version> : <dependency file path>
+def read_entry_command(conn, title, api=False):
+    entry = database.read_entry_by_title(conn, title)
+    if api:
+        return entry
+    if entry:
+        print(f"Title: {entry[0]}\nContent: {entry[1]}\nTimestamp: {entry[2]}\nNotebooks: {entry[3]}")
+    else:
+        print(f"Entry with title '{title}' does not exist.")
 
-    @param codefile String: Path to Python code file.
-    """
-    codefile = os.path.abspath(codefile)
-    results = libprojeb.listDependencies(codefile)
-    print("Count : Dependency Name : Version : Dependency File Path")
-    count = 1
-    for x in results:
-        print("%s : %s : %s : %s" % (str(count), x[0], x[1], x[2]))
-        count = count + 1
+def main():
+    conn = initialize_database()
 
-def listPythonInstalledModules():
-    """!
-    Function to list the non-standard libraries (with version number, 
-    if any) installed in Python.
+    parser = argparse.ArgumentParser(description="ProjEB - Command Line Electronic Lab Notebook")
+    subparsers = parser.add_subparsers(dest='command')
 
-    Usage:
+    # Create notebook command
+    create_notebook_parser = subparsers.add_parser('create_notebook', help='Create a new notebook')
+    create_notebook_parser.add_argument('--name', type=str, required=True, help='Name of the notebook')
 
-        python peb.py listpim
+    # Create entry command
+    create_parser = subparsers.add_parser('create', help='Create a new entry')
+    create_parser.add_argument('--title', type=str, required=True, help='Title of the entry')
+    create_parser.add_argument('--content', type=str, required=True, help='Content of the entry')
+    create_parser.add_argument('--notebook', type=str, help='Notebook to tag the entry')
 
-    Results are shown in the following format:
+    # List entries command
+    list_parser = subparsers.add_parser('list', help='List all entries')
 
-        <count> : <module name> : <version>
-    """
-    results = libprojeb.listPythonInstalledModules()
-    print("Count : Module Name : Version")
-    count = 1
-    for x in results:
-        print("%s : %s : %s" % (str(count), x[0], x[1]))
-        count = count + 1
+    # Read entry command
+    read_parser = subparsers.add_parser('read', help='Read an entry')
+    read_parser.add_argument('--title', type=str, required=True, help='Title of the entry')
 
-def listPythonSystem():
-    """!
-    Function to list information about the installed Python system.
-
-    Usage:
-
-        python peb.py listpysys
-
-    Results are shown in the following format:
-
-        <count> : <attribute name> : <attribute value>
-    """
-    results = libprojeb.listPythonSystem()
-    print("Count : Attribute : Value")
-    count = 1
-    for x in results:
-        print("%s : %s : %s" % (str(count), x, results[x]))
-        count = count + 1
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    subparser = parser.add_subparsers(dest="command")
-
-    listdep = subparser.add_parser("listdep")
-    listdep.add_argument('--codefile', type=str, required=True, help="path of file to check for dependencies")
-    
-    listpim = subparser.add_parser("listpim")
-    
-    listpysys = subparser.add_parser("listpysys")
-    
     args = parser.parse_args()
 
-    if args.command.lower() == "listdep": listDependencies(os.path.abspath(args.codefile))
-    elif args.command.lower() == "listpim": listPythonInstalledModules()
-    elif args.command.lower() == "listpysys": listPythonSystem()
+    if args.command == 'create_notebook':
+        create_notebook_command(conn, args.name)
+    elif args.command == 'create':
+        create_entry_command(conn, args.title, args.content, args.notebook)
+    elif args.command == 'list':
+        list_entries_command(conn)
+    elif args.command == 'read':
+        read_entry_command(conn, args.title)
+    else:
+        parser.print_help()
+
+    conn.close()
+
+if __name__ == "__main__":
+    main()
