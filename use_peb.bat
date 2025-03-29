@@ -52,5 +52,3 @@ python peb.py rename_notebook --old_name "Experiment Notebook" --new_name "Exper
 
 REM List all notes for an entry
 python peb.py list_notes --entry_title "Experiment Title"
-
-pause

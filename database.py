@@ -2,6 +2,8 @@ import sqlite3
 import shutil
 import os
 from datetime import datetime
+import random
+import string
 
 # Database file from configuration
 DATABASE_FILE = None
@@ -21,7 +23,8 @@ def create_database(conn):
             title TEXT NOT NULL,
             content TEXT NOT NULL,
             timestamp TEXT NOT NULL,
-            attachment_path TEXT
+            attachment_path TEXT,
+            original_file_name TEXT
         )
     ''')
     cursor.execute('''
@@ -47,6 +50,7 @@ def create_database(conn):
             content TEXT NOT NULL,
             timestamp TEXT NOT NULL,
             attachment_path TEXT,
+            original_file_name TEXT,
             FOREIGN KEY (entry_id) REFERENCES entries(id)
         )
     ''')
@@ -139,13 +143,14 @@ def create_entry(conn, title, content, notebooks, file_path=None, tags=[]):
             return [f"Cannot add entry to archived notebook '{notebook}'."]
     
     attachment_path = None
+    original_file_name = None
     if file_path:
-        attachment_path = save_attachment(file_path)
+        attachment_path, original_file_name = save_attachment(file_path)
 
     cursor.execute('''
-        INSERT INTO entries (title, content, timestamp, attachment_path)
-        VALUES (?, ?, ?, ?)
-    ''', (title, content, timestamp, attachment_path))
+        INSERT INTO entries (title, content, timestamp, attachment_path, original_file_name)
+        VALUES (?, ?, ?, ?, ?)
+    ''', (title, content, timestamp, attachment_path, original_file_name))
     entry_id = cursor.lastrowid
     log_operation(conn, 'CREATE_ENTRY', 'entries', entry_id, f"Entry '{title}' created.")
     
@@ -178,13 +183,14 @@ def create_note_for_entry(conn, entry_title, note_content, file_path=None, tags=
     entry_id = cursor.fetchone()
     if entry_id:
         attachment_path = None
+        original_file_name = None
         if file_path:
-            attachment_path = save_attachment(file_path)
+            attachment_path, original_file_name = save_attachment(file_path)
 
         cursor.execute('''
-            INSERT INTO notes (entry_id, content, timestamp, attachment_path)
-            VALUES (?, ?, ?, ?)
-        ''', (entry_id[0], note_content, timestamp, attachment_path))
+            INSERT INTO notes (entry_id, content, timestamp, attachment_path, original_file_name)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (entry_id[0], note_content, timestamp, attachment_path, original_file_name))
         note_id = cursor.lastrowid
         log_operation(conn, 'CREATE_NOTE', 'notes', note_id, f"Note for entry '{entry_title}' created.")
         
@@ -197,9 +203,20 @@ def create_note_for_entry(conn, entry_title, note_content, file_path=None, tags=
         return f"Entry with title '{entry_title}' does not exist."
 
 def save_attachment(file_path):
-    attachment_path = os.path.join(ATTACHMENTS_DIR, os.path.basename(file_path))
+    base_name = os.path.basename(file_path)
+    name, ext = os.path.splitext(base_name)
+    random_code = ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))
+    new_name = f"{name}_{random_code}{ext}"
+    attachment_path = os.path.join(ATTACHMENTS_DIR, new_name)
+    
+    # Ensure the generated filename does not already exist
+    while os.path.exists(attachment_path):
+        random_code = ''.join(random.choices(string.ascii_lowercase + string.digits, k=10))
+        new_name = f"{name}_{random_code}{ext}"
+        attachment_path = os.path.join(ATTACHMENTS_DIR, new_name)
+    
     shutil.copy(file_path, attachment_path)
-    return attachment_path
+    return attachment_path, base_name
 
 def list_entries(conn):
     cursor = conn.cursor()
@@ -308,13 +325,13 @@ def activate_notebook(conn, name):
 def search_entries(conn, keyword):
     cursor = conn.cursor()
     cursor.execute('''
-        SELECT e.id, e.title, e.content, e.timestamp, e.attachment_path, GROUP_CONCAT(n.name, ', ') as notebooks
+        SELECT e.id, e.title, e.content, e.timestamp, e.attachment_path, e.original_file_name, GROUP_CONCAT(n.name, ', ') as notebooks
         FROM entries e
         LEFT JOIN entry_notebook en ON e.id = en.entry_id
         LEFT JOIN notebooks n ON en.notebook_id = n.id
-        WHERE e.title LIKE ? OR e.content LIKE ? OR e.attachment_path LIKE ?
+        WHERE e.title LIKE ? OR e.content LIKE ? OR e.attachment_path LIKE ? OR e.original_file_name LIKE ?
         GROUP BY e.id
-    ''', (f"%{keyword}%", f"%{keyword}%", f"%{keyword}%"))
+    ''', (f"%{keyword}%", f"%{keyword}%", f"%{keyword}%", f"%{keyword}%"))
     entries = cursor.fetchall()
     log_operation(conn, 'SEARCH_ENTRIES', 'entries', details=f'Search for entries with keyword "{keyword}" returned {len(entries)} result(s).')
     return entries
@@ -322,11 +339,11 @@ def search_entries(conn, keyword):
 def search_notes(conn, keyword):
     cursor = conn.cursor()
     cursor.execute('''
-        SELECT n.id, n.content, n.timestamp, n.attachment_path, e.title
+        SELECT n.id, n.content, n.timestamp, n.attachment_path, n.original_file_name, e.title
         FROM notes n
         JOIN entries e ON n.entry_id = e.id
-        WHERE n.content LIKE ? OR n.attachment_path LIKE ?
-    ''', (f"%{keyword}%", f"%{keyword}%"))
+        WHERE n.content LIKE ? OR n.attachment_path LIKE ? OR n.original_file_name LIKE ?
+    ''', (f"%{keyword}%", f"%{keyword}%", f"%{keyword}%"))
     notes = cursor.fetchall()
     log_operation(conn, 'SEARCH_NOTES', 'notes', details=f'Search for notes with keyword "{keyword}" returned {len(notes)} result(s).')
     return notes
@@ -334,7 +351,7 @@ def search_notes(conn, keyword):
 def search_entries_by_tag(conn, tag):
     cursor = conn.cursor()
     cursor.execute('''
-        SELECT e.id, e.title, e.content, e.timestamp, e.attachment_path, GROUP_CONCAT(n.name, ', ') as notebooks
+        SELECT e.id, e.title, e.content, e.timestamp, e.attachment_path, e.original_file_name, GROUP_CONCAT(n.name, ', ') as notebooks
         FROM entries e
         JOIN entry_tags et ON e.id = et.entry_id
         JOIN tags t ON et.tag_id = t.id
@@ -350,7 +367,7 @@ def search_entries_by_tag(conn, tag):
 def search_notes_by_tag(conn, tag):
     cursor = conn.cursor()
     cursor.execute('''
-        SELECT n.id, n.content, n.timestamp, n.attachment_path, e.title
+        SELECT n.id, n.content, n.timestamp, n.attachment_path, n.original_file_name, e.title
         FROM notes n
         JOIN note_tags nt ON n.id = nt.note_id
         JOIN tags t ON nt.tag_id = t.id
