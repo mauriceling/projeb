@@ -11,8 +11,44 @@ python peb.py create --title "Experiment Title" --content "Content of the experi
 # Create a new entry without tagging to a notebook
 python peb.py create --title "Experiment Title 2" --content "Content of the second experiment."
 
-# List all entries
-python peb.py list
+# Create a new entry with a file attachment
+python peb.py create --title "Experiment Title with File" --content "Content of the experiment with file." --notebook "Experiment Notebook" --file "peb.py"
 
-# Read a specific entry by title
-python peb.py read --title "Experiment Title"
+# Create a new note for an entry
+python peb.py create_note --entry_title "Experiment Title" --content "This is a note for the experiment."
+
+# Create a new note for an entry with a file attachment
+python peb.py create_note --entry_title "Experiment Title" --content "This is a note with file for the experiment." --file "peb.py"
+
+# Create a new entry with tags
+python peb.py create --title "Tagged Entry" --content "Content of the tagged entry." --notebook "Experiment Notebook" --tags tag1 tag2
+
+# Create a new note with tags for an entry
+python peb.py create_note --entry_title "Experiment Title" --content "This is a note with tags." --tags tag1 tag2
+
+# Search for entries based on keywords in titles, content, or attached files
+python peb.py search_entries --keyword "experiment"
+
+# Search for notes based on keywords in content or attached files
+python peb.py search_notes --keyword "note"
+
+# Search for entries by tag
+python peb.py search_entries_by_tag --tag "tag1"
+
+# Search for notes by tag
+python peb.py search_notes_by_tag --tag "tag2"
+
+# Archive a notebook
+python peb.py archive_notebook --name "Experiment Notebook"
+
+# Activate a notebook
+python peb.py activate_notebook --name "Experiment Notebook"
+
+# List all notebooks
+python peb.py list_notebooks
+
+# Rename a notebook
+python peb.py rename_notebook --old_name "Experiment Notebook" --new_name "Experiment Renamed Notebook"
+
+# List all notes for an entry
+python peb.py list_notes --entry_title "Experiment Title"

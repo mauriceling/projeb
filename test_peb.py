@@ -2,8 +2,9 @@ import os
 import unittest
 import sqlite3
 import configparser
+import shutil
 import database
-from peb import initialize_database, create_notebook_command, create_entry_command, list_entries_command, read_entry_command
+from peb import initialize_database, create_notebook_command, create_entry_command, list_entries_command, read_entry_command, create_note_command, search_entries_by_tag_command, search_notes_by_tag_command
 
 class TestProjEB(unittest.TestCase):
 
@@ -73,6 +74,32 @@ class TestProjEB(unittest.TestCase):
         self.assertIsNotNone(entry)
         self.assertEqual(entry[0], "Test Entry")
         self.assertEqual(entry[1], "This is a test entry.")
+
+    def test_create_note_with_tags(self):
+        create_notebook_command(self.conn, "Test Notebook", api=True)
+        create_entry_command(self.conn, "Test Entry", "This is a test entry.", "Test Notebook", ["tag1", "tag2"], api=True)
+        message = create_note_command(self.conn, "Test Entry", "This is a test note with tags.", ["tag2", "tag3"], api=True)
+        self.assertEqual(message, "Note added successfully.")
+        cursor = self.conn.cursor()
+        cursor.execute('SELECT content FROM notes WHERE content = ?', ("This is a test note with tags.",))
+        note = cursor.fetchone()
+        self.assertIsNotNone(note)
+        self.assertEqual(note[0], "This is a test note with tags.")
+
+    def test_search_entries_by_tag(self):
+        create_notebook_command(self.conn, "Test Notebook", api=True)
+        create_entry_command(self.conn, "Test Entry", "This is a test entry with tag.", "Test Notebook", ["tag1"], api=True)
+        entries = search_entries_by_tag_command(self.conn, "tag1", api=True)
+        self.assertEqual(len(entries), 1)
+        self.assertEqual(entries[0][1], "Test Entry")
+
+    def test_search_notes_by_tag(self):
+        create_notebook_command(self.conn, "Test Notebook", api=True)
+        create_entry_command(self.conn, "Test Entry", "This is a test entry.", "Test Notebook", ["tag1"], api=True)
+        create_note_command(self.conn, "Test Entry", "This is a test note with tag.", ["tag2"], api=True)
+        notes = search_notes_by_tag_command(self.conn, "tag2", api=True)
+        self.assertEqual(len(notes), 1)
+        self.assertEqual(notes[0][1], "This is a test note with tag.")
 
 if __name__ == "__main__":
     unittest.main()
