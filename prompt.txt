@@ -1,0 +1,161 @@
+I want to write CLI-based electronic laboratory notebook (ELN) in Python. This ELN is called ProjEB (Project Electronic Book). One notebook can have multiple entries. One entry can have multiple notes. Each note can have multiple tags. Each entry can have multiple tags. 
+
+ProjEB consists of the following files:
+1. peb.py: The main CLI application. The generic command is python peb.py <command> {options}
+2. database.py: The database module for managing the ELN data.
+3. utils.py: Utility functions for the ELN.
+4. configuration.ini: The configuration file for the ELN.
+5. project_binder.db: The SQLite database file.
+6. requirements.txt: The list of dependencies.
+7. README.md: The documentation for the ELN.
+8. test_peb.py: The test cases for the ELN.
+9. use_peb.bat: A batch file containing sample commands for running the CLI application.
+10. test_use_peb.py: The test cases for use_peb.bat
+
+The ELN should be able to manage notebooks, entries, and notes. The ELN should have the following features:
+1. **Notebook Management**:
+   - Users should be able to create notebooks.
+   - Users should be able to rename notebooks.
+   - Users should be able to add a description to each notebook.
+   - Users should be able to list all notebooks.
+   - Each notebook should have a unique name and a timestamp of creation.
+   - Each notebook should have a status (active or archived).
+   - The status can be changed from active to archived and vice versa.
+2. **Entry Management**:
+   - Users should be able to add entries within an active notebook. 
+   - Each entry should have a title, content (which can include text, images, and attachments), and timestamp.
+   - Attachments can be images or other files, and uploaded into a folder called attachments.
+   - Uploaded attachments should be renamed to a unique name and the original name should be stored in the database.
+   - Each entry title within a notebook should be unique.
+   - Each entry can be tagged to one or more notebooks.
+   - Each entry can be tagged to one or more tags.
+   - Users should be able to list all entries in a notebook.
+   - Users should be able to search entries by title, content, tags, or categories.
+3. **Note Management**:
+   - Users should be able to add notes to an existing entry. 
+   - Each note should have content (which can include text, images, and attachments), and timestamp.
+   - Attachments can be images or other files, and uploaded into a folder called attachments.
+   - Uploaded attachments should be renamed to a unique name and the original name should be stored in the database.
+   - Each note can be tagged to one or more tags.
+   - Users should be able to list all notes for an entry.
+   - Users should be able to search notes by content, tags, or categories.
+4. **Tag Management**:
+   - Users should be able to add tags.
+   - Users should be able to edit tags.
+   - Users should be able to delete tags.
+   - Users should be able to rename tags.
+   - Users should be able to add a description to a tag.
+   - Users should be able to list all tags.
+   - Users should be able to search tags by name.
+   - Users should be able to multiple tags can be merged into one tag.
+   - Each tag can be used to tag to one or more notebooks.
+   - Each tag can be used to tag to one or more entries.
+   - Each tag can be used to tag to one or more notes.
+5. **Search Functionality**:
+   - Users should be able to search for notebooks, entries, notes, or tags by name or content.
+   - Search results should be displayed in a user-friendly format.
+6. **Export Functionality**:
+   - Users should be able to export notebooks, entries, notes, and tags to a file format (e.g., CSV, JSON).
+   - The exported file should include all relevant information (e.g., title, content, tags).
+   - The exported file should be saved in a user-defined location.
+7. **Import Functionality**:
+   - Users should be able to import notebooks, entries, notes, and tags from a file format (e.g., CSV, JSON).
+   - The imported file should include all relevant information (e.g., title, content, tags, categories).
+   - The imported file should be loaded into the ELN.
+   - The imported file should be saved in a user-defined location.
+8. **Backup and Restore**:
+   - Users should be able to backup the entire ELN to a file format (e.g., ZIP, TAR).
+   - The backup file should include all relevant information (e.g., notebooks, entries, notes, tags).
+   - The backup file should be saved in a user-defined location.
+   - Users should be able to restore the ELN from a backup file.
+   - The restored ELN should include all relevant information (e.g., notebooks, entries, notes, tags).
+   - The restored ELN should be saved in a user-defined location.
+9. **User Interface**:
+   - The ELN should have a user-friendly command-line interface (CLI).
+   - The CLI should be easy to navigate and use.
+   - The CLI should provide help and documentation for each command.
+   - The CLI should provide error messages for invalid commands or options.
+   - The CLI should provide feedback for successful commands.
+   - The CLI should provide feedback for failed commands.
+   - The CLI should provide feedback for invalid commands or options.
+10. **Configuration**:  
+   - The ELN should have a configuration file (e.g., INI, JSON) for storing user preferences.
+   - The configuration file should include options for customizing the ELN (e.g., default notebook, default entry, default note).
+   - The configuration file should be easy to edit and update.
+   - The configuration file should be saved in a user-defined location.
+   - The configuration file should be loaded at startup.
+   - The configuration file should be updated at runtime.
+   - The configuration file should be saved at shutdown.
+11. **Testing**:
+   - The ELN should have unit tests for each module.
+   - The ELN should have integration tests for the entire application.
+   - The ELN should have end-to-end tests for the entire application.
+   - The ELN should have test cases for each feature.
+   - The ELN should have test cases for each command.
+   - The ELN should have test cases for each option.
+   - The ELN should have test cases for each error message.
+   - The ELN should have test cases for each feedback message.
+   - The ELN should have test cases for each configuration option.
+
+**Requirements for the Python code**:
+   - The Python code should be well-documented and easy to understand.
+   - The Python code should follow the PEP 8 style guide.
+   - The Python code should be compatible with Python 3.6 or later.
+   - The Python code should be modular and reusable.
+   - The Python code should be tested and debugged.
+   - The Python code should be efficient and optimized.
+   - The Python code should be secure and safe.
+   - The Python code should be easy to maintain and update.
+   - The Python code should be easy to extend and modify.
+   - The Python code should be easy to deploy and run.
+   - The Python code should use Python Standard Library wherever possible.
+   - The Python code should use third-party libraries only when necessary.
+   - The Python code should be well-organized and structured.
+   - The Python code should be easy to read and understand.
+   - Explicit installation should not be required.
+   - The Python code should be cross-platform compatible (Windows, Linux, MacOS).
+   - User should be able to fork the repository and run ProjEB without any issues via peb.py.
+   - The Python code should be able to run in a virtual environment.
+   - The Python code should be able to run in a Docker container.
+   - The Python code should be able to run in a cloud environment.
+   - The Python code should be able to run in a CI/CD pipeline.
+   - The Python code should be able to run in a Kubernetes cluster.
+   - The Python code should be able to run in a serverless environment.
+   - The Python code should be able to run in a microservices architecture.
+   - The Python code should be able to run in a monolithic architecture.
+   - The Python code should be able to run in a hybrid architecture.
+   - The Python code should be able to run in a serverless architecture.
+   - The Python code should be able to run in a distributed architecture.
+   - The Python code should be able to run in a decentralized architecture.
+   - The Python code should be able to run in a blockchain architecture.
+   - The CLI (peb.py) can run in 2 modes, CLI mode or API mode, using a parameter called API. CLI mode is when API == False. API mode is when API == True.
+   - If CLI (peb.py) is in CLI mode (API == False), results will be displayed on screen.
+   - If CLI (peb.py) is in API mode (API == True), results will be not be displayed on screen. Instead, results will be returned from the function to the calling function.
+
+**Examples of commands (using peb.py)**:
+   - `python peb.py help` to display the help message.
+   - `python peb.py version` to display the version of ProjEB.
+   - `python peb.py init` to initialize the ProjEB database.
+   - `python peb.py create-notebook --name <name> --description <description>` to create a new notebook with a name and description.
+   - `python peb.py create-entry --notebook <notebook_name> --title <title> --content <content>` to create a new entry in a notebook with a title and plain text content.
+   - `python peb.py create-entry --notebook <notebook_name> --title <title> --attachments <attachment1,attachment2,attachment3>` to create a new entry in a notebook with a title and attachments.
+   - `python peb.py create-entry --notebook <notebook_name> --title <title> --content <content> --tags <tag1,tag2,tag3>` to create a new entry in a notebook with a title, plain text content and tags.
+   - `python peb.py list-notebooks` to list all notebooks.
+   - `python peb.py list-entries --notebook <notebook_name>` to list all entries in a notebook.
+   - `python peb.py list-entries --notebook <notebook_name> --tag <tag>` to list all entries in a notebook with a specific tag.
+   - `python peb.py list-entries --tag <tag>` to list all entries with a specific tag across all notebooks.
+   - `python peb.py create-note --notebook <notebook_name> --entry <entry_title> --content <content>` to create a new note to an entry in a notebook with plain text content.
+   - `python peb.py create-note --notebook <notebook_name> --entry <entry_title> --content <content> --attachments <attachment1,attachment2,attachment3>` to create a new note to an entry in a notebook with plain text content and attachments.
+   - `python peb.py list-notes --notebook <notebook_name> --entry <entry_title>` to list all notes for an entry in a notebook.
+   - `python peb.py list-tags` to list all tags.
+   - `python peb.py rename-tag --old-tag <old_tag> --new-tag <new_tag>` to rename a tag.
+   - `python peb.py delete-tag --tag <tag>` to delete a tag.
+   - `python peb.py add-tag --notebook <notebook_name> --entry <entry_title> --tag <tag>` to add a tag to an entry in a notebook.
+   - `python peb.py remove-tag --notebook <notebook_name> --entry <entry_title> --tag <tag>` to remove a tag from an entry in a notebook.
+  - `python peb.py merge-tags --tags <tag1,tag2> --new-tag <new_tag>` to merge two tags. 
+  - `python peb.py search --query <query>` to search for entries based on a query.
+  - `python peb.py search --query <query> --tag <tag>` to search for entries based on a query and a tag.
+
+**Note**: The above requirements are subject to change based on the feedback and suggestions from the users.
+
+Generate all the Python code for all the 7 files (peb.py, database.py, utils.py, configuration.ini requirements.txt, use_peb.py, test_peb.py) for the above requirements.
