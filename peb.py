@@ -268,10 +268,20 @@ class ProjEB:
         """Create a backup of the entire ELN"""
         try:
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-            backup_dir = Path(self.config['backup']['dir'])
+            # Get absolute path of backup directory
+            backup_dir = Path(self.config['backup']['dir']).resolve()
+            
+            # If backup directory is relative, make it relative to config file location
+            if not backup_dir.is_absolute():
+                config_dir = Path(os.environ.get('PROJEB_CONFIG', 'configuration.ini')).parent
+                backup_dir = (config_dir / self.config['backup']['dir']).resolve()
+                
+            # Create backup directory if it doesn't exist
+            backup_dir.mkdir(parents=True, exist_ok=True)
+            
             backup_path = backup_dir / f"backup_{timestamp}.zip"
             
-            # Test if directory is writable by attempting to create a test file
+            # Test if directory is writable
             test_file = backup_dir / '.write_test'
             try:
                 test_file.touch()
@@ -280,12 +290,14 @@ class ProjEB:
                 return self._output(f"Backup failed: Directory {backup_dir} is not writable")
                 
             with zipfile.ZipFile(backup_path, 'w') as backup_zip:
-                # Backup database
-                db_path = Path(self.config['database']['file'])
+                # Backup database using absolute paths
+                db_path = Path(self.config['database']['file']).resolve()
+                if not db_path.exists():
+                    return self._output(f"Backup failed: Database file not found at {db_path}")
                 backup_zip.write(db_path, db_path.name)
                 
-                # Backup attachments
-                attachments_dir = Path(self.config['attachments']['dir'])
+                # Backup attachments using absolute paths
+                attachments_dir = Path(self.config['attachments']['dir']).resolve()
                 if attachments_dir.exists():
                     for file_path in attachments_dir.rglob('*'):
                         if file_path.is_file():
@@ -455,47 +467,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-def test_tag_management(self):
-    """Test tag operations"""
-    # Create notebook first
-    notebook = self.peb.create_notebook(Args(
-        name=f"Test_Notebook_{os.urandom(4).hex()}",
-        description='Test Description'
-    ))
-    self.assertIsNotNone(notebook.get('data'))
-    
-    # Create unique tag names
-    tag1_name = f"tag1_{os.urandom(4).hex()}"
-    tag2_name = f"tag2_{os.urandom(4).hex()}"
-    
-    # Create entry with tags
-    entry = self.peb.create_entry(Args(
-        notebook=notebook['data']['name'],  # Use notebook name
-        title='Test Entry',
-        content='Test Content',
-        tags=f"{tag1_name},{tag2_name}"
-    ))
-    self.assertIsNotNone(entry.get('data'))
-    
-    # Get tag IDs
-    tag1 = self.peb.db.get_tag_by_name(tag1_name)
-    tag2 = self.peb.db.get_tag_by_name(tag2_name)
-    self.assertIsNotNone(tag1, "First tag not created")
-    self.assertIsNotNone(tag2, "Second tag not created")
-    
-    # Create merged tag name
-    merged_tag_name = f"merged_tag_{os.urandom(4).hex()}"
-    
-    # Merge tags
-    result = self.peb.merge_tags(Args(
-        tags=f"{tag1[0]},{tag2[0]}",
-        new_tag=merged_tag_name
-    ))
-    self.assertEqual(result['message'], "Tags merged successfully")
-    
-    # Verify merged tag exists and old tags are gone
-    merged_tag = self.peb.db.get_tag_by_name(merged_tag_name)
-    self.assertIsNotNone(merged_tag, "Merged tag not found")
-    self.assertIsNone(self.peb.db.get_tag_by_name(tag1_name))
-    self.assertIsNone(self.peb.db.get_tag_by_name(tag2_name))
